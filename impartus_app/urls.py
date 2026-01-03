@@ -21,13 +21,16 @@ from django.shortcuts import redirect
 
 def root_view(request):
     if request.user.is_authenticated:
-        return redirect("/app/")
+        return redirect("/threads/")
     return redirect("/accounts/google/login/")
 
 
 urlpatterns = [
     path("", root_view),
+
+    path("threads/", include("forum.urls")),      # forum pages
+    path("moderation/", include("forum.mod_urls")),  # moderation ONLY
+
     path("admin/", admin.site.urls),
     path("accounts/", include("allauth.urls")),
-    path("moderation/", include("forum.urls")),
 ]

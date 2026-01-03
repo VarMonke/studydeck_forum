@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Report {{ target_type }}</h2>
+
+<form method="post">
+    {% csrf_token %}
+
+    <label for="reason">Why are you reporting this?</label><br><br>
+
+    <textarea
+        name="reason"
+        rows="5"
+        cols="50"
+        required
+        placeholder="Explain the issue clearly..."
+    ></textarea>
+
+    <br><br>
+
+    <button type="submit">Submit report</button>
+</form>
+
+<a href="javascript:history.back()">Cancel</a>
+{% endblock %}

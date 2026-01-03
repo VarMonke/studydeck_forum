@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Threads{% endblock %}
+
+{% block content %}
+<h2>Threads</h2>
+
+{% if selected_category or selected_tag %}
+    <p>
+        Filtering by:
+        {% if selected_category %}
+            Category: <strong>{{ selected_category }}</strong>
+        {% endif %}
+        {% if selected_tag %}
+            Tag: <strong>{{ selected_tag }}</strong>
+        {% endif %}
+        <a href="/threads/">Clear</a>
+    </p>
+{% endif %}
+
+{% for thread in page_obj  %}
+    <div class="thread-card">
+        <strong>
+            <a href="{% url 'thread_detail' thread.id %}">
+                {{ thread.title }}
+            </a>
+        </strong>
+        <br>
+
+        <small>
+            {{ thread.author.first_name }} {{ thread.author.last_name }}
+            ({{ thread.author.username|upper }})
+            • <a href="/threads/?category={{ thread.category.slug }}">{{ thread.category.name }}</a>
+            • {{ thread.created_at|date:"M d, Y" }}
+        </small>
+
+        <div>
+            {% for tag in thread.tags.all %}
+                <a href="/threads/?tag={{ tag.slug }}">#{{ tag.name }}</a>
+            {% endfor %}
+        </div>
+    </div>
+    <hr>
+{% empty %}
+    <p>No threads yet.</p>
+{% endfor %}
+
+<!-- Pagination controls -->
+<div style="margin-top: 16px;">
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+    {% endif %}
+
+    <span>
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+    </span>
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">Next</a>
+    {% endif %}
+</div>
+
+{% endblock %}

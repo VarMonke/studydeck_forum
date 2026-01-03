@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}{{ thread.title }}{% endblock %}
+
+{% block content %}
+
+<style>
+.vote-btn {
+    font-weight: bold;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.vote-btn.upvoted {
+    color: green;
+}
+
+.vote-btn.downvoted {
+    color: red;
+}
+</style>
+
+<article>
+    <h2>{{ thread.title }}</h2>
+
+    <!-- THREAD VOTES -->
+    <div style="margin-bottom: 8px;">
+        <form method="post"
+              action="{% url 'vote' 'thread' thread.id 'up' %}"
+              style="display:inline;">
+            {% csrf_token %}
+            <button type="submit"
+                    class="vote-btn {% if thread_vote == 1 %}upvoted{% endif %}">
+                ▲
+            </button>
+        </form>
+        <strong>{{ thread.score }}</strong>
+
+        <form method="post"
+              action="{% url 'vote' 'thread' thread.id 'down' %}"
+              style="display:inline;">
+            {% csrf_token %}
+            <button type="submit"
+                    class="vote-btn {% if thread_vote == -1 %}downvoted{% endif %}">
+                ▼
+            </button>
+        </form>
+    </div>
+
+            <div style="margin-top: 8px;">
+                <a href="{% url 'report_form' 'thread' thread.id %}">
+                    Report thread
+                </a>
+            </div>
+
+    <p>{{ thread.content }}</p>
+    {% if thread.resources.exists %}
+        <h4>Resources</h4>
+        <ul>
+            {% for resource in thread.resources.all %}
+                <li>
+                    <a href="{{ resource.url }}" target="_blank">
+                        {{ resource.title }}
+                    </a>
+                    <span style="color:#777;">
+                        (shared by {{ resource.created_by.username }})
+                    </span>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <small>
+        Posted by
+        {{ thread.author.first_name }} {{ thread.author.last_name }}
+        <span style="color:#777;">
+            ({{ thread.author.username|upper }})
+        </span>
+        • {{ thread.created_at|date:"M d, Y H:i" }}
+        • {{ thread.category.name }}
+    </small>
+
+    <div>
+        {% for tag in thread.tags.all %}
+            <span>#{{ tag.name }}</span>
+        {% endfor %}
+    </div>
+
+    {% if perms.forum.lock_thread and not thread.is_locked %}
+        <form method="post" action="{% url 'lock_thread' thread.id %}">
+            {% csrf_token %}
+            <button type="submit">Lock thread</button>
+        </form>
+    {% endif %}
+
+    {% if thread.is_locked %}
+        <p><em>This thread is locked.</em></p>
+    {% endif %}
+</article>
+
+<hr>
+
+<section>
+    <h3>Replies</h3>
+
+    {% for reply in page_obj %}
+        <div class="reply-card" id="reply-{{ reply.id }}">
+
+            <!-- REPLY META -->
+            <div class="reply-meta">
+                <strong>
+                    {{ reply.author.first_name }} {{ reply.author.last_name }}
+                </strong>
+                <span style="color:#777;">
+                    ({{ reply.author.username|upper }})
+                </span>
+
+                {% if reply.author == thread.author %}
+                    <span style="color:green; font-weight:bold; margin-left:6px;">
+                        OP
+                    </span>
+                {% endif %}
+
+                <span style="margin-left:6px;">
+                    • {{ reply.created_at|date:"M d, Y H:i" }}
+                </span>
+            </div>
+
+            <!-- REPLY VOTES -->
+            {% if not reply.is_deleted and not thread.is_locked %}
+                <div style="margin:6px 0;">
+                    <form method="post"
+                        action="{% url 'vote' 'reply' reply.id 'up' %}"
+                        style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="vote-btn {% if reply.vote_value == 1 %}upvoted{% endif %}">
+                            ▲
+                        </button>
+                    </form>
+
+                    <strong>{{ reply.score }}</strong>
+
+                    <form method="post"
+                        action="{% url 'vote' 'reply' reply.id 'down' %}"
+                        style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="vote-btn {% if reply.vote_value == -1 %}downvoted{% endif %}">
+                            ▼
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
+
+            <!-- REPLY BODY -->
+            <div class="reply-body">
+                {% if reply.is_deleted %}
+                    {% if perms.forum.delete_any_reply %}
+                        <div style="opacity:0.6;">
+                            <strong>[REMOVED]</strong><br>
+                            {{ reply.content }}
+                        </div>
+                    {% else %}
+                        <em>This reply was removed by a moderator.</em>
+                    {% endif %}
+                {% else %}
+                    {{ reply.content }}
+                {% endif %}
+            </div>
+
+            <!-- DELETE -->
+            {% if not reply.is_deleted %}
+                {% if request.user == reply.author or perms.forum.delete_any_reply %}
+                    <form method="post" action="{% url 'delete_reply' reply.id %}">
+                        {% csrf_token %}
+                        <button type="submit">Delete</button>
+                    </form>
+                {% endif %}
+                
+                <a href="{% url 'report_form' 'reply' reply.id %}">Report</a>
+            {% endif %}
+
+
+        </div>
+
+        <hr>
+    {% empty %}
+        <p>No replies yet.</p>
+    {% endfor %}
+
+    <!-- PAGINATION -->
+    <div style="margin-top:16px;">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+        {% endif %}
+
+        <span>
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Next</a>
+        {% endif %}
+    </div>
+</section>
+
+<!-- ADD REPLY -->
+{% if not thread.is_locked %}
+    <h4>Add a reply</h4>
+
+    <form method="post" action="{% url 'add_reply' thread.id %}">
+        {% csrf_token %}
+        <textarea name="content" rows="4" required></textarea><br>
+        <button type="submit">Post reply</button>
+    </form>
+{% else %}
+    <p><em>This thread is locked. No new replies allowed.</em></p>
+{% endif %}
+
+{% endblock %}

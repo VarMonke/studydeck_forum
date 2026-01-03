@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}New Thread{% endblock %}
+
+{% block content %}
+<h2>Create a new thread</h2>
+
+<form method="post">
+    {% csrf_token %}
+
+    <div>
+        <label>Title</label><br>
+        {{ form.title }}
+    </div>
+
+    <div>
+        <label>Category</label><br>
+        {{ form.category }}
+    </div>
+
+    <div>
+        <label>Tags</label><br>
+        {{ form.tags }}
+    </div>
+
+    <div>
+        <label>Content</label><br>
+        {{ form.content }}
+    </div>
+
+    <!-- 🔽 THIS WAS MISSING -->
+    <div>
+        <label>Resources</label><br>
+        {{ form.resources }}<br>
+        <small style="color:#777;">
+            Hold Ctrl (or Cmd on Mac) to select multiple resources
+        </small>
+    </div>
+
+
+    <button type="submit">Post thread</button>
+</form>
+
+{% endblock %}

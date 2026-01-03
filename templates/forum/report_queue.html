@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Reports{% endblock %}
+
+{% block content %}
+<h2>Moderation Reports</h2>
+
+<h3>Pending Reports</h3>
+
+{% if pending_reports %}
+    {% for report in pending_reports %}
+        <div style="border:1px solid #ddd; padding:10px; margin-bottom:10px;">
+            <strong>{{ report.target_type|upper }}</strong>
+            (ID {{ report.target_id }})
+            • <a href="{{ report.get_target_url }}" target="_blank">
+                View
+            </a>
+
+            <p>
+                <strong>Reason:</strong><br>
+                {{ report.reason }}
+            </p>
+
+            <p style="color:#777;">
+                Reported by {{ report.reporter.username }}
+                • {{ report.created_at|date:"M d, Y H:i" }}
+            </p>
+
+            <form method="post" action="{% url 'resolve_report' report.id %}">
+                {% csrf_token %}
+                <button type="submit">Mark Resolved</button>
+            </form>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>No pending reports 🎉</p>
+{% endif %}
+
+<hr>
+
+<h3>Resolved Reports</h3>
+
+{% if resolved_reports %}
+    {% for report in resolved_reports %}
+        <div style="border:1px solid #eee; padding:10px; margin-bottom:10px; background:#f9f9f9;">
+            <strong>{{ report.target_type|upper }}</strong>
+            (ID {{ report.target_id }})<br>
+
+            <p>
+                <strong>Reason:</strong><br>
+                {{ report.reason }}
+            </p>
+
+            <p style="color:#777;">
+                Reported by {{ report.reporter.username }}
+                • Resolved
+            </p>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>No resolved reports yet.</p>
+{% endif %}
+
+{% endblock %}

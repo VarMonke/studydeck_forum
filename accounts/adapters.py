@@ -15,5 +15,13 @@ class RestrictedDomainAccountAdapter(DefaultAccountAdapter):
 class RestrictedDomainSocialAdapter(DefaultSocialAccountAdapter):
     def pre_social_login(self, request, sociallogin):
         email = sociallogin.user.email
+
         if not email or not email.endswith(f"@{ALLOWED_DOMAIN}"):
             raise PermissionDenied("Only BITS Pilani emails allowed.")
+
+        user = sociallogin.user
+
+        # 🔒 Force username = BITS ID (email local-part)
+        bits_id = email.split("@")[0]
+        user.username = bits_id
+        user.save()

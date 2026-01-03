@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Forum{% endblock %}</title>
+
+    <style>
+
+        .reply-card:target {
+            background-color: #fff3cd;   /* soft yellow */
+            border: 2px solid #f0ad4e;
+        }
+    </style>
+</head>
+<body>
+
+<header style="display: flex; justify-content: space-between; align-items: center;">
+    <h1>Thread Forum</h1>
+
+    <div>
+    {% if request.user.is_authenticated %}
+        <span>
+            Logged in as
+            <strong>
+                {{ request.user.first_name }} {{ request.user.last_name }}
+            </strong>
+            <span style="color:#777;">
+                ({{ request.user.username|upper }})
+            </span>
+
+            {% if request.user.is_superuser %}
+                <span style="color: red; font-weight: bold; margin-left: 6px;">
+                    [ADMIN]
+                </span>
+            {% elif perms.forum.delete_any_reply %}
+                <span style="color: blue; font-weight: bold; margin-left: 6px;">
+                    [MOD]
+                </span>
+            {% endif %}
+        </span>
+        |
+        <a href="{% url 'create_thread' %}">New Thread</a>
+        |
+        
+            {% if perms.forum.delete_any_reply or perms.forum.lock_thread %}
+                
+                <a href="/moderation/reports/">
+                    Reports
+                </a>
+            {% endif %}
+        | 
+        <a href="/accounts/logout/">Logout</a>
+    {% else %}
+        <a href="/accounts/google/login/">Login</a>
+    {% endif %}
+</div>
+
+</header>
+
+
+<hr>
+
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+</body>
+</html>

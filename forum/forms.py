@@ -16,8 +16,7 @@ class ThreadForm(forms.ModelForm):
         fields = ["title", "content", "category", "tags", "resources"]
         widgets = {
             "content": forms.Textarea(attrs={"rows": 6}),
-            "tags": forms.CheckboxSelectMultiple(),
-            #"resources" : forms.SelectMultiple(),
+            "tags": forms.CheckboxSelectMultiple()
         }
 
         

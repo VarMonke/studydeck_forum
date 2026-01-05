@@ -58,7 +58,7 @@ def thread_detail(request, thread_id):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
-    # ---- VOTE STATE ----
+
     thread_vote = 0
     reply_votes = {}
 
@@ -135,9 +135,9 @@ def add_reply(request, thread_id):
             reply.thread = thread
             reply.save()
 
-            # 🔑 Compute last page
+
             replies_qs = Reply.objects.filter(thread=thread).order_by("created_at")
-            paginator = Paginator(replies_qs, 10)  # SAME page size as thread_detail
+            paginator = Paginator(replies_qs, 10)  
             last_page = paginator.num_pages
 
             return redirect(f"/threads/{thread.id}/?page={last_page}") #type: ignore
@@ -153,9 +153,9 @@ def create_thread(request):
             thread = form.save(commit=False)
             thread.author = request.user
             thread.save()
-            form.save_m2m()  # save tags
+            form.save_m2m()
 
-            # ---- HANDLE RESOURCE ----
+
             resource_url = request.POST.get("resource_url")
             resource_title = request.POST.get("resource_title")
 
@@ -191,7 +191,7 @@ def vote(request, kind, obj_id, direction):
     if kind == "thread":
         obj = get_object_or_404(Thread, id=obj_id)
 
-        # 🚫 Block voting on locked threads
+
         if obj.is_locked:
             raise PermissionDenied("Thread is locked")
 
@@ -200,11 +200,11 @@ def vote(request, kind, obj_id, direction):
     elif kind == "reply":
         obj = get_object_or_404(Reply, id=obj_id)
 
-        # 🚫 Block voting on deleted replies
+
         if obj.is_deleted:
             raise PermissionDenied("Cannot vote on deleted reply")
 
-        # 🚫 Block voting if thread is locked
+
         if obj.thread.is_locked:
             raise PermissionDenied("Thread is locked")
 

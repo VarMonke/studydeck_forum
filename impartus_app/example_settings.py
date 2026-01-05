@@ -139,10 +139,10 @@ AUTHENTICATION_BACKENDS = [
 
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_EMAIL_VERIFICATION = "none"
 
-ACCOUNT_ADAPTER = 'accounts.adapters.RestrictedDomainAccountAdapter'
+#ACCOUNT_ADAPTER = 'accounts.adapters.RestrictedDomainAccountAdapter'
 SOCIALACCOUNT_ADAPTER = 'accounts.adapters.RestrictedDomainSocialAdapter'
 
 
@@ -162,3 +162,9 @@ LOGIN_REDIRECT_URL = "/app/"
 LOGOUT_REDIRECT_URL = "/"
 
 ACCOUNT_ALLOW_REGISTRATION = False
+
+DEBUG = False
+ALLOWED_HOSTS = ["varmonke.pythonanywhere.com"]
+
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"

@@ -1,15 +1,9 @@
-from allauth.account.adapter import DefaultAccountAdapter
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from django.core.exceptions import PermissionDenied
+from django.contrib.auth import get_user_model
 
+User = get_user_model()
 ALLOWED_DOMAIN = "pilani.bits-pilani.ac.in"
-
-
-class RestrictedDomainAccountAdapter(DefaultAccountAdapter):
-    def clean_email(self, email):
-        if not email.endswith(f"@{ALLOWED_DOMAIN}"):
-            raise PermissionDenied("Only BITS Pilani emails allowed.")
-        return email
 
 
 class RestrictedDomainSocialAdapter(DefaultSocialAccountAdapter):
@@ -19,9 +13,9 @@ class RestrictedDomainSocialAdapter(DefaultSocialAccountAdapter):
         if not email or not email.endswith(f"@{ALLOWED_DOMAIN}"):
             raise PermissionDenied("Only BITS Pilani emails allowed.")
 
-        user = sociallogin.user
-
-        # 🔒 Force username = BITS ID (email local-part)
-        bits_id = email.split("@")[0]
-        user.username = bits_id
-        user.save()
+        try:
+            existing_user = User.objects.get(email=email)
+            sociallogin.connect(request, existing_user)
+            return
+        except User.DoesNotExist:
+            sociallogin.user.username = email.split("@")[0]

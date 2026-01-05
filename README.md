@@ -44,6 +44,7 @@ Due to nature of `DJango Admin`, assigning users Moderator permissions is relati
 - Admins can create `Categories` and `Tags` which allow users to sort threads depending on these factors.
 - Users can include `Resources` which they are reffering to, in the post as well.
 - Users can Upvote and Downvote threads and comments.
+- The Original Poster(OP) of the post can be identified in the comments, as well as Moderators and Admin, who have special colors.
 - Pagination is available on the `Thread List` and `Comments`.
 
 - Moderators and Admins can view reports at `base_url.com/moderation/reports/` and resolve them.
@@ -53,3 +54,7 @@ Due to nature of `DJango Admin`, assigning users Moderator permissions is relati
 - Deleted comments are soft deleted, i.e the content is not visible to the user but still available in the database.
 - Moderators and Admins can view reports at `base_url.com/moderation/reports/` and resolve them.
 - Reports highlight the specific reply reported.
+
+# Design Decisions
+
+I drew a lot of inspiration from Reddit for this application. Most of my database models are similar to how reddit handles information, with changes to fit StudyDeck.

@@ -86,15 +86,6 @@ a:hover {
 .vote-btn.upvoted { color: var(--accent-green); }
 .vote-btn.downvoted { color: var(--accent-red); }
 
-/* RESOURCES */
-.resources {
-    margin-top: 14px;
-}
-
-.resources ul {
-    margin: 6px 0 0 18px;
-}
-
 /* REPLIES */
 .replies-title {
     font-size: 1.25rem;
@@ -116,12 +107,6 @@ a:hover {
     padding: 2px 6px;
     border-radius: 4px;
     margin-left: 6px;
-}
-
-.badge-removed {
-    color: var(--accent-red);
-    font-weight: 700;
-    font-style: italic;
 }
 
 /* PAGINATION */
@@ -174,35 +159,6 @@ a:hover {
 
     <p>{{ thread.content }}</p>
 
-    {% if thread.resources.exists %}
-    <div class="resources">
-        <strong>Resources:</strong>
-        <ul>
-            {% for resource in thread.resources.all %}
-                <li><a href="{{ resource.url }}" target="_blank">{{ resource.title }}</a></li>
-            {% endfor %}
-        </ul>
-    </div>
-    {% endif %}
-
-    <div class="thread-meta">
-        Posted by {{ thread.author.first_name }} {{ thread.author.last_name }}
-        ({{ thread.author.username|upper }})
-        • {{ thread.created_at|date:"M d, Y H:i" }}
-        • <a href="{% url 'thread_list' %}?category={{ thread.category.slug }}">
-            {{ thread.category.name }}
-          </a>
-    </div>
-
-    <div class="thread-tags">
-        {% for tag in thread.tags.all %}
-            <a class="thread-tag"
-               href="{% url 'thread_list' %}?tag={{ tag.slug }}">
-               #{{ tag.name }}
-            </a>
-        {% endfor %}
-    </div>
-
 </article>
 
 <!-- REPLIES -->
@@ -219,6 +175,27 @@ a:hover {
                     <span class="badge-op">OP</span>
                 {% endif %}
                 • {{ reply.created_at|date:"M d, Y H:i" }}
+            </div>
+
+            <!-- ✅ FIXED REPLY VOTING -->
+            <div class="vote-box">
+                <form method="post" action="{% url 'vote' 'reply' reply.id 'up' %}">
+                    {% csrf_token %}
+                    <button
+                        class="vote-btn {% if reply.vote_value == 1 %}upvoted{% endif %}">
+                        ▲
+                    </button>
+                </form>
+
+                <strong>{{ reply.score }}</strong>
+
+                <form method="post" action="{% url 'vote' 'reply' reply.id 'down' %}">
+                    {% csrf_token %}
+                    <button
+                        class="vote-btn {% if reply.vote_value == -1 %}downvoted{% endif %}">
+                        ▼
+                    </button>
+                </form>
             </div>
 
             <div class="reply-body">
@@ -247,15 +224,12 @@ a:hover {
     </div>
 </section>
 
-<!-- ADD REPLY -->
 {% if not thread.is_locked %}
 <form class="reply-form" method="post" action="{% url 'add_reply' thread.id %}">
     {% csrf_token %}
     <textarea name="content" rows="4" required placeholder="Write your reply..."></textarea>
     <button type="submit">Post reply</button>
 </form>
-{% else %}
-<p><em>This thread is locked.</em></p>
 {% endif %}
 
 {% endblock %}

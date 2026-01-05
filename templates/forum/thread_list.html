@@ -3,52 +3,160 @@
 {% block title %}Threads{% endblock %}
 
 {% block content %}
-<h2>Threads</h2>
+
+<style>
+    .page-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 16px;
+    }
+
+    .filter-bar {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px 14px;
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+    }
+
+    .filter-bar strong {
+        margin-right: 6px;
+    }
+
+    .filter-bar a {
+        margin-left: 10px;
+        font-size: 0.85rem;
+    }
+
+    .thread-card {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 14px 16px;
+        margin-bottom: 14px;
+        transition: box-shadow 0.15s ease, transform 0.15s ease;
+    }
+
+    .thread-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        transform: translateY(-1px);
+    }
+
+    .thread-title {
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    .thread-meta {
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-bottom: 8px;
+    }
+
+    .thread-meta a {
+        color: var(--accent);
+        font-weight: 500;
+    }
+
+    .tag-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .tag {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: #f1f5f9;
+        color: #334155;
+        font-weight: 500;
+    }
+
+    .tag:hover {
+        background: #e2e8f0;
+        text-decoration: none;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        margin-top: 24px;
+        font-size: 0.9rem;
+    }
+
+    .pagination a {
+        padding: 6px 10px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: #ffffff;
+    }
+
+    .pagination a:hover {
+        background: #f1f5f9;
+        text-decoration: none;
+    }
+
+    .empty-state {
+        text-align: center;
+        color: var(--muted);
+        margin-top: 40px;
+    }
+</style>
+
+<h2 class="page-title">Threads</h2>
 
 {% if selected_category or selected_tag %}
-    <p>
+    <div class="filter-bar">
         Filtering by:
         {% if selected_category %}
-            Category: <strong>{{ selected_category }}</strong>
+            <strong>Category:</strong> {{ selected_category }}
         {% endif %}
         {% if selected_tag %}
-            Tag: <strong>{{ selected_tag }}</strong>
+            <strong>Tag:</strong> {{ selected_tag }}
         {% endif %}
         <a href="/threads/">Clear</a>
-    </p>
+    </div>
 {% endif %}
 
-{% for thread in page_obj  %}
+{% for thread in page_obj %}
     <div class="thread-card">
-        <strong>
+        <div class="thread-title">
             <a href="{% url 'thread_detail' thread.id %}">
                 {{ thread.title }}
             </a>
-        </strong>
-        <br>
+        </div>
 
-        <small>
+        <div class="thread-meta">
             {{ thread.author.first_name }} {{ thread.author.last_name }}
             ({{ thread.author.username|upper }})
-            • <a href="/threads/?category={{ thread.category.slug }}">{{ thread.category.name }}</a>
+            • <a href="/threads/?category={{ thread.category.slug }}">
+                {{ thread.category.name }}
+              </a>
             • {{ thread.created_at|date:"M d, Y" }}
-        </small>
+        </div>
 
-        <div>
+        <div class="tag-list">
             {% for tag in thread.tags.all %}
-                <a href="/threads/?tag={{ tag.slug }}">#{{ tag.name }}</a>
+                <a class="tag" href="/threads/?tag={{ tag.slug }}">
+                    #{{ tag.name }}
+                </a>
             {% endfor %}
         </div>
     </div>
-    <hr>
 {% empty %}
-    <p>No threads yet.</p>
+    <div class="empty-state">
+        <p>No threads yet.</p>
+    </div>
 {% endfor %}
 
-<!-- Pagination controls -->
-<div style="margin-top: 16px;">
+<div class="pagination">
     {% if page_obj.has_previous %}
-        <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+        <a href="?page={{ page_obj.previous_page_number }}">← Previous</a>
     {% endif %}
 
     <span>
@@ -56,7 +164,7 @@
     </span>
 
     {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}">Next</a>
+        <a href="?page={{ page_obj.next_page_number }}">Next →</a>
     {% endif %}
 </div>
 

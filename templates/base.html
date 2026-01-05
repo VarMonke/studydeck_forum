@@ -1,63 +1,164 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>{% block title %}Forum{% endblock %}</title>
 
     <style>
+        :root {
+            --bg: #f6f7fb;
+            --card: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --accent: #2563eb;
+            --admin: #dc2626;
+            --mod: #2563eb;
+            --border: #e5e7eb;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        header {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .user-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.95rem;
+        }
+
+        .username {
+            font-weight: 600;
+        }
+
+        .handle {
+            color: var(--muted);
+            font-size: 0.85rem;
+            margin-left: 4px;
+        }
+
+        .badge {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+        }
+
+        .badge.admin {
+            background: #fee2e2;
+            color: var(--admin);
+        }
+
+        .badge.mod {
+            background: #dbeafe;
+            color: var(--mod);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-links span {
+            color: var(--muted);
+        }
+
+        main {
+            max-width: 900px;
+            margin: 24px auto;
+            padding: 0 16px;
+        }
+
+        /* Highlighted reply */
+        .reply-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
 
         .reply-card:target {
-            background-color: #fff3cd;   /* soft yellow */
-            border: 2px solid #f0ad4e;
+            background-color: #fff7ed;
+            border: 2px solid #fb923c;
         }
     </style>
 </head>
+
 <body>
 
-<header style="display: flex; justify-content: space-between; align-items: center;">
-    <h1>Thread Forum</h1>
+<header>
+    <h1>StudyDeck Forum</h1>
 
-    <div>
-    {% if request.user.is_authenticated %}
-        <span>
-            Logged in as
-            <strong>
-                {{ request.user.first_name }} {{ request.user.last_name }}
-            </strong>
-            <span style="color:#777;">
-                ({{ request.user.username|upper }})
+    <div class="user-bar">
+        {% if request.user.is_authenticated %}
+            <span>
+                Logged in as
+                <span class="username">
+                    {{ request.user.first_name }} {{ request.user.last_name }}
+                </span>
+                <span class="handle">
+                    (@{{ request.user.username|upper }})
+                </span>
+
+                {% if request.user.is_superuser %}
+                    <span class="badge admin">ADMIN</span>
+                {% elif perms.forum.delete_any_reply %}
+                    <span class="badge mod">MOD</span>
+                {% endif %}
             </span>
 
-            {% if request.user.is_superuser %}
-                <span style="color: red; font-weight: bold; margin-left: 6px;">
-                    [ADMIN]
-                </span>
-            {% elif perms.forum.delete_any_reply %}
-                <span style="color: blue; font-weight: bold; margin-left: 6px;">
-                    [MOD]
-                </span>
-            {% endif %}
-        </span>
-        |
-        <a href="{% url 'create_thread' %}">New Thread</a>
-        |
-        
-            {% if perms.forum.delete_any_reply or perms.forum.lock_thread %}
-                
-                <a href="/moderation/reports/">
-                    Reports
-                </a>
-            {% endif %}
-        | 
-        <a href="/accounts/logout/">Logout</a>
-    {% else %}
-        <a href="/accounts/google/login/">Login</a>
-    {% endif %}
-</div>
+            <div class="nav-links">
+                <span>|</span>
+                <a href="{% url 'create_thread' %}">New Thread</a>
 
+                {% if perms.forum.delete_any_reply or perms.forum.lock_thread %}
+                    <span>|</span>
+                    <a href="/moderation/reports/">Reports</a>
+                {% endif %}
+
+                <span>|</span>
+                <a href="/accounts/logout/">Logout</a>
+            </div>
+        {% else %}
+            <a href="/accounts/google/login/">Login</a>
+        {% endif %}
+    </div>
 </header>
-
-
-<hr>
 
 <main>
     {% block content %}{% endblock %}

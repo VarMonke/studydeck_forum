@@ -1,14 +1,76 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Login</title>
+    <title>Sign in</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            background: #f5f6f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .card {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            width: 360px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+
+        .card h2 {
+            margin-bottom: 8px;
+        }
+
+        .card p {
+            color: #666;
+            margin-bottom: 24px;
+        }
+
+        .google-btn {
+            width: 100%;
+            padding: 12px;
+            font-size: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .google-btn:hover {
+            background: #f1f1f1;
+        }
+
+        .google-logo {
+            width: 18px;
+            height: 18px;
+        }
+    </style>
 </head>
 <body>
-    <h2>Sign in using your BITS email ID</h2>
+
+<div class="card">
+    <h2>Sign in</h2>
+    <p>Use your BITS Google account</p>
 
     <form method="post">
         {% csrf_token %}
-        <button type="submit">Continue with Google</button>
+        <button type="submit" class="google-btn">
+            <img class="google-logo"
+                 src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                 alt="Google logo">
+            Continue with Google
+        </button>
     </form>
+</div>
+
 </body>
 </html>

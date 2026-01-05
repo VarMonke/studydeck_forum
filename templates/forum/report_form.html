@@ -1,25 +1,99 @@
 {% extends "base.html" %}
 
+{% block title %}Report {{ target_type }}{% endblock %}
+
 {% block content %}
-<h2>Report {{ target_type }}</h2>
 
-<form method="post">
-    {% csrf_token %}
+<style>
+    .report-card {
+        max-width: 560px;
+        margin: 40px auto;
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px 24px;
+    }
 
-    <label for="reason">Why are you reporting this?</label><br><br>
+    .report-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
 
-    <textarea
-        name="reason"
-        rows="5"
-        cols="50"
-        required
-        placeholder="Explain the issue clearly..."
-    ></textarea>
+    .report-subtitle {
+        font-size: 0.9rem;
+        color: var(--muted);
+        margin-bottom: 14px;
+    }
 
-    <br><br>
+    .report-group label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: block;
+        margin-bottom: 6px;
+    }
 
-    <button type="submit">Submit report</button>
-</form>
+    .report-group textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        font-family: inherit;
+        font-size: 0.95rem;
+        resize: vertical;
+    }
 
-<a href="javascript:history.back()">Cancel</a>
+    .report-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 16px;
+    }
+
+    .report-actions button {
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: none;
+        background: #dc2626;
+        color: #ffffff;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .report-actions button:hover {
+        opacity: 0.9;
+    }
+
+    .cancel-link {
+        font-size: 0.85rem;
+        color: var(--muted);
+    }
+</style>
+
+<div class="report-card">
+    <div class="report-title">Report {{ target_type }}</div>
+    <div class="report-subtitle">
+        Please explain why this {{ target_type|lower }} violates the forum rules.
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="report-group">
+            <label for="reason">Reason</label>
+            <textarea
+                name="reason"
+                rows="5"
+                required
+                placeholder="Explain the issue clearly..."
+            ></textarea>
+        </div>
+
+        <div class="report-actions">
+            <a class="cancel-link" href="javascript:history.back()">Cancel</a>
+            <button type="submit">Submit report</button>
+        </div>
+    </form>
+</div>
+
 {% endblock %}

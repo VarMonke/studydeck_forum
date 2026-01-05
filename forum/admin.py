@@ -1,8 +1,9 @@
 from django.contrib import admin
-from .models import Category, Tag, Thread, Reply, Resource
+from .models import Category, Tag, Thread, Reply, Resource, Course
 
 admin.site.register(Thread)
 admin.site.register(Reply)
+admin.site.register(Course)
 admin.site.register(Resource)
 
 

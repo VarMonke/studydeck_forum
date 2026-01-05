@@ -5,92 +5,223 @@
 {% block content %}
 
 <style>
+/* ---------- VARIABLES ---------- */
+:root {
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border: #e2e8f0;
+    --muted: #6b7280;
+    --accent-green: #16a34a;
+    --accent-red: #dc2626;
+}
+
+/* ---------- GENERAL ---------- */
+body {
+    background: var(--bg);
+}
+
+.thread-card, .reply-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.03);
+}
+
+a {
+    text-decoration: none;
+    color: #2563eb;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* ---------- THREAD ---------- */
+.thread-title {
+    font-size: 1.45rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.thread-meta {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 12px;
+}
+
+.thread-tags {
+    margin-top: 10px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.thread-tag {
+    font-size: 0.75rem;
+    background: #f1f5f9;
+    padding: 4px 8px;
+    border-radius: 999px;
+}
+
+/* ---------- VOTING ---------- */
+.vote-box {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
 .vote-btn {
-    font-weight: bold;
+    font-weight: 700;
+    font-size: 0.9rem;
     background: none;
     border: none;
     cursor: pointer;
 }
 
-.vote-btn.upvoted {
-    color: green;
+.vote-btn.upvoted { color: var(--accent-green); }
+.vote-btn.downvoted { color: var(--accent-red); }
+
+/* ---------- RESOURCES ---------- */
+.resources {
+    margin-top: 14px;
 }
 
-.vote-btn.downvoted {
-    color: red;
+.resources ul {
+    margin: 6px 0 0 18px;
+}
+
+/* ---------- REPLIES ---------- */
+.replies-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+}
+
+.reply-meta {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 6px;
+}
+
+.reply-body {
+    margin: 8px 0;
+}
+
+.badge-op {
+    background: #dcfce7;
+    color: #166534;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 6px;
+}
+
+.badge-removed {
+    color: var(--accent-red);
+    font-weight: 700;
+    font-style: italic;
+}
+
+.reply-actions {
+    font-size: 0.8rem;
+    margin-top: 6px;
+}
+
+.reply-actions a,
+.reply-actions button {
+    margin-right: 10px;
+}
+
+/* ---------- PAGINATION ---------- */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 20px;
+    font-size: 0.9rem;
+}
+
+/* ---------- ADD REPLY ---------- */
+.reply-form textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    resize: vertical;
+}
+
+.reply-form button {
+    margin-top: 8px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    background: #2563eb;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.reply-form button:hover {
+    background: #1d4ed8;
 }
 </style>
 
-<article>
-    <h2>{{ thread.title }}</h2>
+<!-- THREAD -->
+<article class="thread-card">
 
-    <!-- THREAD VOTES -->
-    <div style="margin-bottom: 8px;">
-        <form method="post"
-              action="{% url 'vote' 'thread' thread.id 'up' %}"
-              style="display:inline;">
+    <div class="thread-title">{{ thread.title }}</div>
+
+    <div class="vote-box">
+        <form method="post" action="{% url 'vote' 'thread' thread.id 'up' %}">
             {% csrf_token %}
-            <button type="submit"
-                    class="vote-btn {% if thread_vote == 1 %}upvoted{% endif %}">
-                ▲
-            </button>
+            <button class="vote-btn {% if thread_vote == 1 %}upvoted{% endif %}">▲</button>
         </form>
+
         <strong>{{ thread.score }}</strong>
 
-        <form method="post"
-              action="{% url 'vote' 'thread' thread.id 'down' %}"
-              style="display:inline;">
+        <form method="post" action="{% url 'vote' 'thread' thread.id 'down' %}">
             {% csrf_token %}
-            <button type="submit"
-                    class="vote-btn {% if thread_vote == -1 %}downvoted{% endif %}">
-                ▼
-            </button>
+            <button class="vote-btn {% if thread_vote == -1 %}downvoted{% endif %}">▼</button>
         </form>
+
+        <a style="margin-left:10px; font-size:0.85rem;" href="{% url 'report_form' 'thread' thread.id %}">Report</a>
     </div>
 
-            <div style="margin-top: 8px;">
-                <a href="{% url 'report_form' 'thread' thread.id %}">
-                    Report thread
-                </a>
-            </div>
-
     <p>{{ thread.content }}</p>
+
     {% if thread.resources.exists %}
-        <h4>Resources</h4>
-        <ul>
-            {% for resource in thread.resources.all %}
-                <li>
-                    <a href="{{ resource.url }}" target="_blank">
-                        {{ resource.title }}
-                    </a>
-                    <span style="color:#777;">
-                        (shared by {{ resource.created_by.username }})
-                    </span>
-                </li>
-            {% endfor %}
-        </ul>
+        <div class="resources">
+            <strong>Resources:</strong>
+            <ul>
+                {% for resource in thread.resources.all %}
+                    <li>
+                        <a href="{{ resource.url }}" target="_blank">{{ resource.title }}</a>
+                        <span style="color:var(--muted);">({{ resource.created_by.username }})</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
     {% endif %}
 
-    <small>
-        Posted by
-        {{ thread.author.first_name }} {{ thread.author.last_name }}
-        <span style="color:#777;">
-            ({{ thread.author.username|upper }})
-        </span>
-        • {{ thread.created_at|date:"M d, Y H:i" }}
-        • {{ thread.category.name }}
-    </small>
+    <div class="thread-meta">
+        Posted by {{ thread.author.first_name }} {{ thread.author.last_name }}
+        ({{ thread.author.username|upper }}) • {{ thread.created_at|date:"M d, Y H:i" }} • {{ thread.category.name }}
+    </div>
 
-    <div>
+    <div class="thread-tags">
         {% for tag in thread.tags.all %}
-            <span>#{{ tag.name }}</span>
+            <span class="thread-tag">#{{ tag.name }}</span>
         {% endfor %}
     </div>
 
     {% if perms.forum.lock_thread and not thread.is_locked %}
         <form method="post" action="{% url 'lock_thread' thread.id %}">
             {% csrf_token %}
-            <button type="submit">Lock thread</button>
+            <button type="submit" style="margin-top:12px; padding:6px 12px; border-radius:6px;">Lock thread</button>
         </form>
     {% endif %}
 
@@ -99,69 +230,45 @@
     {% endif %}
 </article>
 
-<hr>
-
+<!-- REPLIES -->
 <section>
-    <h3>Replies</h3>
+    <div class="replies-title">Replies</div>
 
     {% for reply in page_obj %}
         <div class="reply-card" id="reply-{{ reply.id }}">
 
-            <!-- REPLY META -->
             <div class="reply-meta">
-                <strong>
-                    {{ reply.author.first_name }} {{ reply.author.last_name }}
-                </strong>
-                <span style="color:#777;">
-                    ({{ reply.author.username|upper }})
-                </span>
+                {{ reply.author.first_name }} {{ reply.author.last_name }}
+                ({{ reply.author.username|upper }})
 
                 {% if reply.author == thread.author %}
-                    <span style="color:green; font-weight:bold; margin-left:6px;">
-                        OP
-                    </span>
+                    <span class="badge-op">OP</span>
                 {% endif %}
 
-                <span style="margin-left:6px;">
-                    • {{ reply.created_at|date:"M d, Y H:i" }}
-                </span>
+                • {{ reply.created_at|date:"M d, Y H:i" }}
             </div>
 
-            <!-- REPLY VOTES -->
             {% if not reply.is_deleted and not thread.is_locked %}
-                <div style="margin:6px 0;">
-                    <form method="post"
-                        action="{% url 'vote' 'reply' reply.id 'up' %}"
-                        style="display:inline;">
+                <div class="vote-box">
+                    <form method="post" action="{% url 'vote' 'reply' reply.id 'up' %}">
                         {% csrf_token %}
-                        <button type="submit"
-                                class="vote-btn {% if reply.vote_value == 1 %}upvoted{% endif %}">
-                            ▲
-                        </button>
+                        <button class="vote-btn {% if reply.vote_value == 1 %}upvoted{% endif %}">▲</button>
                     </form>
 
                     <strong>{{ reply.score }}</strong>
 
-                    <form method="post"
-                        action="{% url 'vote' 'reply' reply.id 'down' %}"
-                        style="display:inline;">
+                    <form method="post" action="{% url 'vote' 'reply' reply.id 'down' %}">
                         {% csrf_token %}
-                        <button type="submit"
-                                class="vote-btn {% if reply.vote_value == -1 %}downvoted{% endif %}">
-                            ▼
-                        </button>
+                        <button class="vote-btn {% if reply.vote_value == -1 %}downvoted{% endif %}">▼</button>
                     </form>
                 </div>
             {% endif %}
 
-            <!-- REPLY BODY -->
             <div class="reply-body">
                 {% if reply.is_deleted %}
                     {% if perms.forum.delete_any_reply %}
-                        <div style="opacity:0.6;">
-                            <strong>[REMOVED]</strong><br>
-                            {{ reply.content }}
-                        </div>
+                        <span class="badge-removed">[REMOVED]</span><br>
+                        {{ reply.content }}
                     {% else %}
                         <em>This reply was removed by a moderator.</em>
                     {% endif %}
@@ -170,38 +277,31 @@
                 {% endif %}
             </div>
 
-            <!-- DELETE -->
             {% if not reply.is_deleted %}
-                {% if request.user == reply.author or perms.forum.delete_any_reply %}
-                    <form method="post" action="{% url 'delete_reply' reply.id %}">
-                        {% csrf_token %}
-                        <button type="submit">Delete</button>
-                    </form>
-                {% endif %}
-                
-                <a href="{% url 'report_form' 'reply' reply.id %}">Report</a>
+                <div class="reply-actions">
+                    {% if request.user == reply.author or perms.forum.delete_any_reply %}
+                        <form method="post" action="{% url 'delete_reply' reply.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit">Delete</button>
+                        </form>
+                    {% endif %}
+                    <a href="{% url 'report_form' 'reply' reply.id %}">Report</a>
+                </div>
             {% endif %}
-
-
         </div>
-
-        <hr>
     {% empty %}
         <p>No replies yet.</p>
     {% endfor %}
 
-    <!-- PAGINATION -->
-    <div style="margin-top:16px;">
+    <div class="pagination">
         {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+            <a href="?page={{ page_obj.previous_page_number }}">← Previous</a>
         {% endif %}
 
-        <span>
-            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-        </span>
+        <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
 
         {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}">Next</a>
+            <a href="?page={{ page_obj.next_page_number }}">Next →</a>
         {% endif %}
     </div>
 </section>
@@ -210,9 +310,9 @@
 {% if not thread.is_locked %}
     <h4>Add a reply</h4>
 
-    <form method="post" action="{% url 'add_reply' thread.id %}">
+    <form class="reply-form" method="post" action="{% url 'add_reply' thread.id %}">
         {% csrf_token %}
-        <textarea name="content" rows="4" required></textarea><br>
+        <textarea name="content" rows="4" required placeholder="Write your reply..."></textarea>
         <button type="submit">Post reply</button>
     </form>
 {% else %}

@@ -3,42 +3,113 @@
 {% block title %}New Thread{% endblock %}
 
 {% block content %}
-<h2>Create a new thread</h2>
 
-<form method="post">
-    {% csrf_token %}
+<style>
+    .form-card {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px 24px;
+        max-width: 720px;
+        margin: 0 auto;
+    }
 
-    <div>
-        <label>Title</label><br>
-        {{ form.title }}
-    </div>
+    .form-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 16px;
+    }
 
-    <div>
-        <label>Category</label><br>
-        {{ form.category }}
-    </div>
+    .form-group {
+        margin-bottom: 16px;
+    }
 
-    <div>
-        <label>Tags</label><br>
-        {{ form.tags }}
-    </div>
+    .form-group label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: block;
+        margin-bottom: 6px;
+    }
 
-    <div>
-        <label>Content</label><br>
-        {{ form.content }}
-    </div>
+    .form-group small {
+        font-size: 0.8rem;
+        color: var(--muted);
+    }
 
-    <!-- 🔽 THIS WAS MISSING -->
-    <div>
-        <label>Resources</label><br>
-        {{ form.resources }}<br>
-        <small style="color:#777;">
-            Hold Ctrl (or Cmd on Mac) to select multiple resources
-        </small>
-    </div>
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        font-family: inherit;
+        font-size: 0.95rem;
+    }
 
+    .form-group select[multiple] {
+        height: 120px;
+    }
 
-    <button type="submit">Post thread</button>
-</form>
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 20px;
+    }
+
+    .form-actions button {
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: none;
+        background: var(--accent);
+        color: #ffffff;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .form-actions button:hover {
+        opacity: 0.9;
+    }
+</style>
+
+<div class="form-card">
+    <div class="form-title">Create a new thread</div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>Title</label>
+            {{ form.title }}
+        </div>
+
+        <div class="form-group">
+            <label>Category</label>
+            {{ form.category }}
+        </div>
+
+        <div class="form-group">
+            <label>Tags</label>
+            {{ form.tags }}
+        </div>
+
+        <div class="form-group">
+            <label>Content</label>
+            {{ form.content }}
+        </div>
+
+        <div class="form-group">
+            <label>Resources</label>
+            {{ form.resources }}
+            <small>
+                Hold <strong>Ctrl</strong> (or <strong>Cmd</strong> on Mac) to select multiple resources
+            </small>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit">Post thread</button>
+        </div>
+    </form>
+</div>
 
 {% endblock %}

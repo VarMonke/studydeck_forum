@@ -3,62 +3,169 @@
 {% block title %}Reports{% endblock %}
 
 {% block content %}
-<h2>Moderation Reports</h2>
 
-<h3>Pending Reports</h3>
+<style>
+    .mod-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin: 24px 0 12px;
+    }
+
+    .report-card {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 14px 16px;
+        margin-bottom: 12px;
+    }
+
+    .report-card.pending {
+        border-left: 5px solid #dc2626;
+    }
+
+    .report-card.resolved {
+        background: #f8fafc;
+        opacity: 0.9;
+    }
+
+    .report-header {
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    .report-header a {
+        font-weight: 500;
+        margin-left: 6px;
+    }
+
+    .report-reason {
+        margin: 8px 0;
+        font-size: 0.95rem;
+    }
+
+    .report-meta {
+        font-size: 0.8rem;
+        color: var(--muted);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .resolve-btn {
+        padding: 6px 12px;
+        border-radius: 6px;
+        border: none;
+        background: #16a34a;
+        color: #ffffff;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .resolve-btn:hover {
+        opacity: 0.9;
+    }
+
+    .empty-state {
+        color: var(--muted);
+        font-style: italic;
+        margin-top: 6px;
+    }
+
+    .badge {
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 4px;
+        margin-left: 6px;
+    }
+
+    .badge.pending {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .badge.resolved {
+        background: #dcfce7;
+        color: #166534;
+    }
+</style>
+
+<div class="mod-title">Moderation Reports</div>
+
+<!-- PENDING -->
+<div class="section-title">Pending Reports</div>
 
 {% if pending_reports %}
     {% for report in pending_reports %}
-        <div style="border:1px solid #ddd; padding:10px; margin-bottom:10px;">
-            <strong>{{ report.target_type|upper }}</strong>
-            (ID {{ report.target_id }})
-            • <a href="{{ report.get_target_url }}" target="_blank">
-                View
-            </a>
+        <div class="report-card pending">
+            <div class="report-header">
+                {{ report.target_type|upper }}
+                <span class="badge pending">PENDING</span>
+                (ID {{ report.target_id }})
+                • <a href="{{ report.get_target_url }}" target="_blank">View</a>
+            </div>
 
-            <p>
+            <div class="report-reason">
                 <strong>Reason:</strong><br>
                 {{ report.reason }}
-            </p>
+            </div>
 
-            <p style="color:#777;">
-                Reported by {{ report.reporter.username }}
-                • {{ report.created_at|date:"M d, Y H:i" }}
-            </p>
+            <div class="report-meta">
+                <span>
+                    Reported by {{ report.reporter.username }}
+                    • {{ report.created_at|date:"M d, Y H:i" }}
+                </span>
 
-            <form method="post" action="{% url 'resolve_report' report.id %}">
-                {% csrf_token %}
-                <button type="submit">Mark Resolved</button>
-            </form>
+                <form method="post" action="{% url 'resolve_report' report.id %}">
+                    {% csrf_token %}
+                    <button class="resolve-btn" type="submit">
+                        Mark Resolved
+                    </button>
+                </form>
+            </div>
         </div>
     {% endfor %}
 {% else %}
-    <p>No pending reports 🎉</p>
+    <div class="empty-state">No pending reports 🎉</div>
 {% endif %}
 
-<hr>
-
-<h3>Resolved Reports</h3>
+<!-- RESOLVED -->
+<div class="section-title">Resolved Reports</div>
 
 {% if resolved_reports %}
     {% for report in resolved_reports %}
-        <div style="border:1px solid #eee; padding:10px; margin-bottom:10px; background:#f9f9f9;">
-            <strong>{{ report.target_type|upper }}</strong>
-            (ID {{ report.target_id }})<br>
+        <div class="report-card resolved">
+            <div class="report-header">
+                {{ report.target_type|upper }}
+                <span class="badge resolved">RESOLVED</span>
+                (ID {{ report.target_id }})
+            </div>
 
-            <p>
+            <div class="report-reason">
                 <strong>Reason:</strong><br>
                 {{ report.reason }}
-            </p>
+            </div>
 
-            <p style="color:#777;">
-                Reported by {{ report.reporter.username }}
-                • Resolved
-            </p>
+            <div class="report-meta">
+                <span>
+                    Reported by {{ report.reporter.username }}
+                    • Resolved
+                </span>
+            </div>
         </div>
     {% endfor %}
 {% else %}
-    <p>No resolved reports yet.</p>
+    <div class="empty-state">No resolved reports yet.</div>
 {% endif %}
 
 {% endblock %}
